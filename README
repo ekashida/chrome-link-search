@@ -3,12 +3,12 @@ This project is an excuse to play with YUI3 widgets and Chrome extensions. It im
 These are the commands:
 ' (single quote) : initiate search mode (focuses the search field if already in search mode)
 esc              : terminate search mode
-ctrl-g           : focus on a matched link; hit repeatedly to cycle through
+cmd-g            : focus on a matched link; hit repeatedly to cycle through
 
 Workflow:
-1) Hit "'" to initiate search mode. The search field appears with focus.
+1) Hit the single quote to initiate search mode. The search field appears with focus.
 2) Begin typing the search query. All matching links will be highlighted if configured to do so.
-3) Navigate through all the matched links by repeatedly hitting <ctrl-g>.
+3) Navigate through all the matched links by repeatedly hitting <cmd-g>.
 4) Hit <enter> when you're focused on the link you want to follow.
 
 You can exit search mode by hitting <esc> at any point.
