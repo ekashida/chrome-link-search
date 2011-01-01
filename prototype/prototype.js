@@ -92,20 +92,24 @@ var linkMatcher = (function () {
     }
 
     function showFirstMatch () {
-        focusNext(); // use focus to scroll window
+        focusMatch(0); // use focus to scroll window
         searchField.isInDoc() && searchField.field.focus(); // return focus to search field
     }
 
+    function focusMatch (index) {
+        lastMatch.length && lastMatch[index].focus();
+    }
+
     function focusNext () {
-        if (lastMatch instanceof Array && lastMatch.length) {
-            if (currentIndex < 0 || currentIndex + 1 >= lastMatch.length) {
+        if (lastMatch.length) {
+            if (currentIndex < 0 || currentIndex + 1 >= lastMatch.length) { // initialize or wrap
                 currentIndex = 0;
             }
             else {
                 currentIndex += 1;
             }
 
-            lastMatch[currentIndex].focus();
+            focusMatch(currentIndex);
         }
     }
 
