@@ -48,11 +48,14 @@ YUI.add('chrome-link-search', function (Y) {
             broadcast: 1,
         },
 
+        numMatchedLinks: {
+            value: 0,
+        },
+
         // matchedLinks index of the focused link
-        matchedLinksFocusIndex: {
+        focusIndex: {
             value: null,
             broadcast: 1,
-            setter: '_setMatchedLinksFocusIndex',
         },
 
         // NodeList snapshot of all links
@@ -125,7 +128,7 @@ YUI.add('chrome-link-search', function (Y) {
             this.after('searchModeChange', Y.bind(this._afterSearchModeChange, this));
             this.after('queryStringChange', Y.bind(this._afterQueryStringChange, this));
             this.after('matchedLinksChange', Y.bind(this._afterMatchedLinksChange, this));
-            this.after('matchedLinksFocusIndexChange', Y.bind(this._afterMatchedLinksFocusIndexChange, this));
+            this.after('focusIndexChange', Y.bind(this._afterFocusIndexChange, this));
         },
 
         syncUI : function() {
@@ -135,7 +138,7 @@ YUI.add('chrome-link-search', function (Y) {
         _triggerSearchMode : function (e) {
             if (e.keyCode === keyCodeFor.SINGLE_QUOTE) {
                 this.set('searchMode', true);
-                this._focusSearchField();
+                this.field.focus();
             }
         },
 
@@ -149,46 +152,35 @@ YUI.add('chrome-link-search', function (Y) {
             }
             else if (e.metaKey && e.keyCode === keyCodeFor.G) {
                 e.halt();
-                this._incrementFocusedLinkIndex();
-                Y.log('focusing through matched links');
+                this._incrementFocusLinkIndex();
             }
         },
 
-        _incrementFocusedLinkIndex : function () {
-            var index = this.get('matchedLinksFocusIndex');
-            this.set('matchedLinksFocusIndex', index === null ? 0 : index + 1);
-        },
+        _incrementFocusLinkIndex : function () {
+            var current = this.get('focusIndex');
 
-        _setMatchedLinksFocusIndex : function (index) {
-            var numMatchedLinks = this.get('matchedLinks').length;
-
-            if (!numMatchedLinks) {
-                return;
+            // nothing focused yet
+            if (current === null) {
+                this.set('focusIndex', 0);
             }
-
-            return index >= numMatchedLinks ? 0 : index; // wrap
+            // wrap around
+            else if (current + 1 >= this.get('numMatchedLinks')) {
+                this.set('focusIndex', 0);
+            }
+            // increment
+            else {
+                this.set('focusIndex', current + 1);
+            }
         },
 
-        _afterMatchedLinksFocusIndexChange : function (e) {
+        _afterFocusIndexChange : function (e) {
             var index = e.newVal;
 
             if (index === null) {
                 return;
             }
 
-            var link = this.get('matchedLinks')[index];
-
-            if (this._isInRenderTree(link)) {
-                link.focus();
-            }
-            else {
-                this._incrementFocusedLinkIndex();
-            }
-        },
-
-        // Made an assumption that any element in the render tree should have an offset parent.
-        _isInRenderTree : function (link) {
-            return link.get('offsetParent');
+            this.get('matchedLinks')[index].focus();
         },
 
         _afterQueryStringChange : function (e) {
@@ -199,24 +191,10 @@ YUI.add('chrome-link-search', function (Y) {
             this._removeHighlighting(e.prevVal || []);
             this._addHighlighting(e.newVal);
 
-            this.set('matchedLinksFocusIndex', null);
-            this._scrollToFirstMatch();
-        },
+            this.set('numMatchedLinks', e.newVal.length);
+            this.set('focusIndex', null);
 
-        _scrollToFirstMatch : function () {
-            this._incrementFocusIndex();
-            this._focusSearchField();
-        },
-
-        // Null out the focus index whenever we focus on the search field.
-        _focusSearchField : function () {
-            this.set('matchedLinksFocusIndex', null);
-            this.field.focus();
-        },
-
-        _incrementFocusIndex : function () {
-            var index = this.get('matchedLinksFocusIndex');
-            this.set('matchedLinksFocusIndex', index === null ? 0 : index + 1);
+            this._scrollFirstMatchIntoView();
         },
 
         _getMatchingLinks : function (query) {
@@ -227,7 +205,6 @@ YUI.add('chrome-link-search', function (Y) {
             var cache = this.get('matchCache');
 
             if (cache[query]) {
-                Y.log('CACHE HIT');
                 return cache[query];
             }
 
@@ -236,14 +213,16 @@ YUI.add('chrome-link-search', function (Y) {
                 matches = [];
 
             links.each(function (el) {
-                if (regex.test(el.get('textContent'))) {
+                var matchesText  = regex.test(el.get('textContent')),
+                    inRenderTree = el.get('offsetParent');
+
+                if (matchesText && inRenderTree) {
                     matches.push(el);
                 }
             });
 
             cache[query] = matches;
 
-            Y.log('CACHE MISS');
             return matches;
         },
 
@@ -253,7 +232,7 @@ YUI.add('chrome-link-search', function (Y) {
             if (searchModeIsActive) {
                 this.set('visible', true);
                 this.set('allLinks', Y.all('a'));
-                this._focusSearchField();
+                this.field.focus();
 
                 Body.on('searchmode|keydown', Y.bind(this._searchModeKeyDownHandler, this));
             }
@@ -270,6 +249,15 @@ YUI.add('chrome-link-search', function (Y) {
 
 
         /*** UTILS ***/
+
+        _scrollFirstMatchIntoView : function () {
+            var matched = this.get('matchedLinks');
+
+            if (matched.length) {
+                matched[0].focus();
+                this.field.focus();
+            }
+        },
 
         _addHighlighting : function (links) {
             this._highlighter(links, true);
@@ -297,5 +285,4 @@ YUI.add('chrome-link-search', function (Y) {
 YUI().use('chrome-link-search', function (Y) {
     var linksearch = new Y.LinkSearch({highlightColor: 'yellow'});
     linksearch.render();
-    Y.log('READY');
 });
