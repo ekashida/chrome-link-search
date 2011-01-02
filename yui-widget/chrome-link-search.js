@@ -1,6 +1,5 @@
 YUI.add('chrome-link-search', function (Y) {
 
-    /* Any frequently used shortcuts, strings and constants */
     var Body = Y.one('body'),
         keyCodeFor = {
             ESC: 27,
@@ -61,23 +60,14 @@ YUI.add('chrome-link-search', function (Y) {
         // NodeList snapshot of all links
         allLinks: {
             value: null,
-            /*
-            , valueFn: "_defAttrAVal"      // Can be used as a substitute for "value", when you need access to "this" to set the default value.
-            , setter: "_setAttrA"          // Used to normalize attrA's value while during set. Refers to a prototype method, to make customization easier
-            , getter: "_getAttrA"          // Used to normalize attrA's value while during get. Refers to a prototype method, to make customization easier
-            , validator: "_validateAttrA"  // Used to validate attrA's value before updating it. Refers to a prototype method, to make customization easier
-            , broadcast: 1                 // Whether the attribute change event should be broadcast or not.
-            */
         },
     };
 
 
     Y.extend(LinkSearch, Y.Widget, {
 
-        initializer: function() {
-        },
-
         destructor : function() {
+            Y.detach('linksearch|*');
         },
 
         renderUI : function() {
@@ -122,7 +112,7 @@ YUI.add('chrome-link-search', function (Y) {
         },
 
         bindUI : function() {
-            Body.on('keyup', Y.bind(this._triggerSearchMode, this));
+            Body.on('linksearch|keyup', Y.bind(this._triggerSearchMode, this));
             this.field.on('keyup', Y.bind(this._searchModeKeyUpHandler, this));
 
             this.after('searchModeChange', Y.bind(this._afterSearchModeChange, this));
@@ -268,8 +258,6 @@ YUI.add('chrome-link-search', function (Y) {
             }
         },
 
-
-        /*** UTILS ***/
 
         _scrollFirstMatchIntoView : function () {
             var matched = this.get('matchedLinks');
