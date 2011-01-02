@@ -150,9 +150,30 @@ YUI.add('chrome-link-search', function (Y) {
             if (e.keyCode === keyCodeFor.ESC) {
                 this.set('searchMode', false);
             }
+            else if (e.shiftKey && e.metaKey && e.keyCode === keyCodeFor.G) {
+                e.halt();
+                this._decrementFocusLinkIndex();
+            }
             else if (e.metaKey && e.keyCode === keyCodeFor.G) {
                 e.halt();
                 this._incrementFocusLinkIndex();
+            }
+        },
+
+        _decrementFocusLinkIndex : function () {
+            var current = this.get('focusIndex');
+
+            // nothing focused yet
+            if (current === null) {
+                this.set('focusIndex', 0);
+            }
+            // wrap around
+            else if (current === 0) {
+                this.set('focusIndex', this.get('numMatchedLinks') - 1);
+            }
+            // decrement
+            else {
+                this.set('focusIndex', current - 1);
             }
         },
 
