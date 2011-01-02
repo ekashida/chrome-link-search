@@ -184,30 +184,6 @@ YUI.add('chrome-link-search', function (Y) {
             }
         },
 
-        _afterFocusIndexChange : function (e) {
-            var index = e.newVal;
-
-            if (index === null) {
-                return;
-            }
-
-            this.get('matchedLinks')[index].focus();
-        },
-
-        _afterQueryStringChange : function (e) {
-            this.set('matchedLinks', this._getMatchingLinks(e.newVal));
-        },
-
-        _afterMatchedLinksChange : function (e) {
-            this._removeHighlighting(e.prevVal || []);
-            this._addHighlighting(e.newVal);
-
-            this.set('numMatchedLinks', e.newVal.length);
-            this.set('focusIndex', null);
-
-            this._scrollFirstMatchIntoView();
-        },
-
         _getMatchingLinks : function (query) {
             if (query === '') {
                 return [];
@@ -256,6 +232,30 @@ YUI.add('chrome-link-search', function (Y) {
 
                 Y.detach('searchmode|*'); // detach all search mode events
             }
+        },
+
+        _afterFocusIndexChange : function (e) {
+            var index = e.newVal;
+
+            if (index === null) {
+                return;
+            }
+
+            this.get('matchedLinks')[index].focus();
+        },
+
+        _afterQueryStringChange : function (e) {
+            this.set('matchedLinks', this._getMatchingLinks(e.newVal));
+        },
+
+        _afterMatchedLinksChange : function (e) {
+            this._removeHighlighting(e.prevVal || []);
+            this._addHighlighting(e.newVal);
+
+            this.set('numMatchedLinks', e.newVal.length);
+            this.set('focusIndex', null);
+
+            this._scrollFirstMatchIntoView();
         },
 
 
