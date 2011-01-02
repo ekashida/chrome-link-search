@@ -9,7 +9,7 @@ YUI.add('chrome-link-search', function (Y) {
 
     LinkSearch.NAME = 'linkSearch';
     LinkSearch.LABEL_TEMPLATE = '<label for="chrome-link-search-field">{LABEL}</label>';
-    LinkSearch.FIELD_TEMPLATE = '<input id="chrome-link-search-field" type="text"></input>';
+    LinkSearch.FIELD_TEMPLATE = '<input id="chrome-linksearch-field" type="text"></input>';
 
     function LinkSearch (config) {
         LinkSearch.superclass.constructor.apply(this, arguments);
@@ -21,10 +21,6 @@ YUI.add('chrome-link-search', function (Y) {
             value: {
                 label: 'Quick Find (links only):'
             }
-        },
-
-        highlightColor: {
-            value: '',
         },
 
         searchMode: {
@@ -75,18 +71,8 @@ YUI.add('chrome-link-search', function (Y) {
             var contentBox = this.get('contentBox'),
                 boundingBox = this.get('boundingBox'),
                 labelText = this.getString('label'),
-                color = this.get('highlightColor'),
                 label = Y.Node.create(Y.substitute(LinkSearch.LABEL_TEMPLATE, { LABEL: labelText })),
-                field = Y.Node.create(LinkSearch.FIELD_TEMPLATE),
-                css = '.yui3-linksearch { position:fixed; top:0; right:0; }' +
-                      '.yui3-linksearch-content { background:#DDD; opacity:0.9; padding:5px 10px; border:1px solid #CCC; border-bottom-left-radius:10px }';
-                      '.yui3-linksearch input { margin-left:5px; border-radius:5px; }' +
-                      '.yui3-linksearch label { color:#444; font-size:0.9em; }';
-
-            if (color) {
-                css += '.yui3-linksearch-match { background:' + color + ' }';
-            }
-            Y.StyleSheet(css);
+                field = Y.Node.create(LinkSearch.FIELD_TEMPLATE);
 
             contentBox.appendChild(label);
             contentBox.appendChild(field);
@@ -253,10 +239,8 @@ YUI.add('chrome-link-search', function (Y) {
         },
 
         _highlighter : function (links, add) {
-            if (this.get('highlightColor')) {
-                for (var i = 0, len = links.length; i < len; i++) {
-                    links[i][add ? 'addClass' : 'removeClass']('yui3-linksearch-match');
-                }
+            for (var i = 0, len = links.length; i < len; i++) {
+                links[i][add ? 'addClass' : 'removeClass']('yui3-linksearch-match');
             }
         },
 
@@ -264,10 +248,4 @@ YUI.add('chrome-link-search', function (Y) {
 
     Y.LinkSearch = LinkSearch;
 
-}, '3.2.0', {requires:['widget', 'substitute', 'stylesheet']});
-
-
-YUI().use('chrome-link-search', function (Y) {
-    var linksearch = new Y.LinkSearch({highlightColor: 'yellow'});
-    linksearch.render();
 });

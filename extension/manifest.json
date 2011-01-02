@@ -1,0 +1,12 @@
+{
+    "name": "Chrome Link Search",
+    "version": "1.0",
+    "description": "Adds link searching capability to Chrome.",
+    "content_scripts": [
+        {
+            "matches": ["<all_urls>"],
+            "css": ["chrome-link-search.css"],
+            "js": ["yui3.js", "chrome-link-search.js", "init.js"]
+        }
+    ]
+}
