@@ -8,8 +8,8 @@ YUI.add('chrome-link-search', function (Y) {
         };
 
     LinkSearch.NAME = 'linkSearch';
-    LinkSearch.LABEL_TEMPLATE = '<label for="link-search">{LABEL}</label>';
-    LinkSearch.FIELD_TEMPLATE = '<input id="link-search" name="link-search" type="text"></input>';
+    LinkSearch.LABEL_TEMPLATE = '<label for="chrome-link-search-field">{LABEL}</label>';
+    LinkSearch.FIELD_TEMPLATE = '<input id="chrome-link-search-field" type="text"></input>';
 
     function LinkSearch (config) {
         LinkSearch.superclass.constructor.apply(this, arguments);
@@ -75,36 +75,18 @@ YUI.add('chrome-link-search', function (Y) {
             var contentBox = this.get('contentBox'),
                 boundingBox = this.get('boundingBox'),
                 labelText = this.getString('label'),
+                color = this.get('highlightColor'),
                 label = Y.Node.create(Y.substitute(LinkSearch.LABEL_TEMPLATE, { LABEL: labelText })),
-                field = Y.Node.create(LinkSearch.FIELD_TEMPLATE);
+                field = Y.Node.create(LinkSearch.FIELD_TEMPLATE),
+                css = '.yui3-linksearch { position:fixed; top:0; right:0; }' +
+                      '.yui3-linksearch-content { background:#DDD; opacity:0.9; padding:5px 10px; border:1px solid #CCC; border-bottom-left-radius:10px }';
+                      '.yui3-linksearch input { margin-left:5px; border-radius:5px; }' +
+                      '.yui3-linksearch label { color:#444; font-size:0.9em; }';
 
-            // TODO: move all these styles into a stylesheet
-            field.setStyles({
-                marginLeft: '5px',
-                borderRadius: '5px',
-            });
-            label.setStyles({
-                color: '#444',
-                fontSize: '0.9em',
-            });
-            boundingBox.setStyles({
-                position: 'fixed',
-                top: '0',
-                right: '0',
-            });
-            contentBox.setStyles({
-                background: '#DDD',
-                opacity: '0.9',
-                padding: '5px 10px',
-                border: '1px solid #ccc',
-                borderBottomLeftRadius: '10px',
-            });
-
-            if (this.get('highlightColor')) {
-                Y.one('head').append(
-                    Y.Node.create('<style>.link-search-match{background:' + this.get('highlightColor') + '}</style>')
-                );
+            if (color) {
+                css += '.yui3-linksearch-match { background:' + color + ' }';
             }
+            Y.StyleSheet(css);
 
             contentBox.appendChild(label);
             contentBox.appendChild(field);
@@ -152,6 +134,7 @@ YUI.add('chrome-link-search', function (Y) {
         },
 
         _incrementFocusLinkIndex : function (decrement) {
+            // don't increment/decrement the focus index unless there are matched links
             if (!this.get('numMatchedLinks')) {
                 return;
             }
@@ -272,7 +255,7 @@ YUI.add('chrome-link-search', function (Y) {
         _highlighter : function (links, add) {
             if (this.get('highlightColor')) {
                 for (var i = 0, len = links.length; i < len; i++) {
-                    links[i][add ? 'addClass' : 'removeClass']('link-search-match');
+                    links[i][add ? 'addClass' : 'removeClass']('yui3-linksearch-match');
                 }
             }
         },
@@ -281,7 +264,7 @@ YUI.add('chrome-link-search', function (Y) {
 
     Y.LinkSearch = LinkSearch;
 
-}, '3.2.0', {requires:['widget', 'substitute']});
+}, '3.2.0', {requires:['widget', 'substitute', 'stylesheet']});
 
 
 YUI().use('chrome-link-search', function (Y) {
