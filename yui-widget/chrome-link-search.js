@@ -80,11 +80,12 @@ YUI.add('chrome-link-search', function (Y) {
 
             // TODO: move all these styles into a stylesheet
             field.setStyles({
-                marginLeft: '3px',
+                marginLeft: '5px',
                 borderRadius: '5px',
             });
             label.setStyles({
                 color: '#444',
+                fontSize: '0.9em',
             });
             boundingBox.setStyles({
                 position: 'fixed',
@@ -142,7 +143,7 @@ YUI.add('chrome-link-search', function (Y) {
             }
             else if (e.shiftKey && e.metaKey && e.keyCode === keyCodeFor.G) {
                 e.halt();
-                this._decrementFocusLinkIndex();
+                this._incrementFocusLinkIndex('decrement');
             }
             else if (e.metaKey && e.keyCode === keyCodeFor.G) {
                 e.halt();
@@ -150,37 +151,29 @@ YUI.add('chrome-link-search', function (Y) {
             }
         },
 
-        _decrementFocusLinkIndex : function () {
-            var current = this.get('focusIndex');
+        _incrementFocusLinkIndex : function (decrement) {
+            if (!this.get('numMatchedLinks')) {
+                return;
+            }
+
+            var focusIndex = this.get('focusIndex'),
+                increment  = !decrement;
 
             // nothing focused yet
-            if (current === null) {
+            if (focusIndex === null) {
                 this.set('focusIndex', 0);
             }
-            // wrap around
-            else if (current === 0) {
+            // increment wrap around
+            else if (increment && focusIndex + 1 >= this.get('numMatchedLinks')) {
+                this.set('focusIndex', 0);
+            }
+            // decrement wrap around
+            else if (decrement && focusIndex === 0) {
                 this.set('focusIndex', this.get('numMatchedLinks') - 1);
             }
-            // decrement
+            // increment/decrement
             else {
-                this.set('focusIndex', current - 1);
-            }
-        },
-
-        _incrementFocusLinkIndex : function () {
-            var current = this.get('focusIndex');
-
-            // nothing focused yet
-            if (current === null) {
-                this.set('focusIndex', 0);
-            }
-            // wrap around
-            else if (current + 1 >= this.get('numMatchedLinks')) {
-                this.set('focusIndex', 0);
-            }
-            // increment
-            else {
-                this.set('focusIndex', current + 1);
+                this.set('focusIndex', increment ? focusIndex + 1 : focusIndex - 1);
             }
         },
 
