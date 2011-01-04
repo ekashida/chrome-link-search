@@ -1,6 +1,6 @@
 {
-    "name": "Chrome Link Search",
-    "version": "1.0",
+    "name": "Link Search",
+    "version": "1.0.1",
     "description": "Adds link searching capability to Chrome.",
     "content_scripts": [
         {
