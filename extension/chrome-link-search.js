@@ -1,19 +1,53 @@
 YUI.add('chrome-link-search', function (Y) {
 
     var Body = Y.one('body'),
+
         keyCodeFor = {
             ESC: 27,
             SINGLE_QUOTE: 222,
-            G: 71,
+            G: 71
+        },
+
+        styles = {
+            BOUNDING_BOX : {
+                position: 'fixed',
+                top: '0',
+                right: '0',
+                zIndex: '999999',
+            },
+            CONTENT_BOX: {
+                background: '#DDD',
+                padding: '5px 10px',
+                border: '1px solid #CCC',
+                borderBottomLeftRadius: '10px',
+                display: 'block',
+                float: 'right',
+                width: 'auto',
+                height: 'auto'
+            },
+            LABEL : {
+                color: '#444',
+                fontSize: '0.9em'
+            },
+            FIELD : {
+                marginLeft: '5px',
+                borderRadius: '5px',
+                color: '#000'
+            },
+            MATCH : {
+                background: 'yellow'
+            },
         };
 
-    LinkSearch.NAME = 'linkSearch';
-    LinkSearch.LABEL_TEMPLATE = '<label for="chrome-link-search-field">{LABEL}</label>';
-    LinkSearch.FIELD_TEMPLATE = '<input id="chrome-linksearch-field" type="text"></input>';
 
     function LinkSearch (config) {
         LinkSearch.superclass.constructor.apply(this, arguments);
     }
+
+    LinkSearch.NAME = 'linkSearch';
+
+    LinkSearch.LABEL_TEMPLATE = '<label for="chrome-link-search-field">{LABEL}</label>';
+    LinkSearch.FIELD_TEMPLATE = '<input id="chrome-linksearch-field" type="text"></input>';
 
     LinkSearch.ATTRS = {
 
@@ -68,11 +102,27 @@ YUI.add('chrome-link-search', function (Y) {
 
         renderUI : function() {
 
-            var contentBox = this.get('contentBox'),
-                boundingBox = this.get('boundingBox'),
+            var boundingBox = this.get('boundingBox'),
+                contentBox = this.get('contentBox'),
                 labelText = this.getString('label'),
                 label = Y.Node.create(Y.substitute(LinkSearch.LABEL_TEMPLATE, { LABEL: labelText })),
                 field = Y.Node.create(LinkSearch.FIELD_TEMPLATE);
+
+            // Set style attributes.
+            boundingBox.setStyles(styles.BOUNDING_BOX);
+            contentBox.setStyles(styles.CONTENT_BOX);
+            label.setStyles(styles.LABEL);
+            field.setStyles(styles.FIELD);
+
+            // Define styles for hidden state and matched links.
+            var boundingBoxId = '#' + boundingBox.get('id'),
+                hiddenClass   = '.' + this.getClassName('hidden'),
+                hiddenRule    = boundingBoxId + hiddenClass + '{display:none;}',
+                matchRule     = '.' + this.getClassName('match') + '{background:yellow;}',
+                styleTag      = '<style>' + hiddenRule + matchRule + '</style>';
+            Y.one('head').append(
+                Y.Node.create(styleTag)
+            );
 
             contentBox.appendChild(label);
             contentBox.appendChild(field);
