@@ -8,6 +8,12 @@ YUI.add('chrome-link-search', function (Y) {
             G: 71
         },
 
+        // Search mode is not initiated if the trigger originates from one of these elements.
+        isInvalidTriggerElement = {
+            INPUT: true,
+            TEXTAREA: true
+        },
+
         styles = {
             BOUNDING_BOX : {
                 position: 'fixed',
@@ -145,7 +151,8 @@ YUI.add('chrome-link-search', function (Y) {
         },
 
         _triggerSearchMode : function (e) {
-            if (e.keyCode === keyCodeFor.SINGLE_QUOTE) {
+            // Sorry for the double-negative but I wanted to default-deny.
+            if (e.keyCode === keyCodeFor.SINGLE_QUOTE && !isInvalidTriggerElement[e.target.get('tagName')]) {
                 this.set('searchMode', true);
                 this.field.focus();
             }
