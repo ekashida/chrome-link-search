@@ -9,7 +9,7 @@ YUI.add('chrome-link-search', function (Y) {
         },
 
         // Search mode is not initiated if the trigger originates from one of these elements.
-        isInvalidTriggerElement = {
+        isInvalidTriggerSource = {
             INPUT: true,
             TEXTAREA: true
         },
@@ -19,7 +19,7 @@ YUI.add('chrome-link-search', function (Y) {
                 position: 'fixed',
                 top: '0',
                 right: '0',
-                zIndex: '999999',
+                zIndex: '2147483647'
             },
             CONTENT_BOX: {
                 background: '#DDD',
@@ -33,16 +33,23 @@ YUI.add('chrome-link-search', function (Y) {
             },
             LABEL : {
                 color: '#444',
-                fontSize: '0.9em'
+                fontSize: '12px'
             },
             FIELD : {
+                fontSize: '12px',
                 marginLeft: '5px',
                 borderRadius: '5px',
-                color: '#000'
+                color: '#000',
+                border: '1px solid #BBB',
+                padding: '6px 8px'
+            },
+            MASK : {
+                background: '#000',
+                opacity: '0.25'
             },
             MATCH : {
                 background: 'yellow'
-            },
+            }
         };
 
 
@@ -54,6 +61,7 @@ YUI.add('chrome-link-search', function (Y) {
 
     LinkSearch.LABEL_TEMPLATE = '<label for="chrome-link-search-field">{LABEL}</label>';
     LinkSearch.FIELD_TEMPLATE = '<input id="chrome-linksearch-field" type="text"></input>';
+    LinkSearch.MASK_TEMPLATE  = '<div id="chrome-linksearch-mask"></div>';
 
     LinkSearch.ATTRS = {
 
@@ -97,6 +105,10 @@ YUI.add('chrome-link-search', function (Y) {
         allLinks: {
             value: null,
         },
+
+        lastActiveElement: {
+            value: null,
+        },
     };
 
 
@@ -109,8 +121,9 @@ YUI.add('chrome-link-search', function (Y) {
         renderUI : function() {
 
             var boundingBox = this.get('boundingBox'),
-                contentBox = this.get('contentBox'),
-                labelText = this.getString('label'),
+                contentBox  = this.get('contentBox'),
+                labelText   = this.getString('label'),
+
                 label = Y.Node.create(Y.substitute(LinkSearch.LABEL_TEMPLATE, { LABEL: labelText })),
                 field = Y.Node.create(LinkSearch.FIELD_TEMPLATE);
 
@@ -126,6 +139,7 @@ YUI.add('chrome-link-search', function (Y) {
                 hiddenRule    = boundingBoxId + hiddenClass + '{display:none;}',
                 matchRule     = '.' + this.getClassName('match') + '{background:yellow;}',
                 styleTag      = '<style>' + hiddenRule + matchRule + '</style>';
+
             Y.one('head').append(
                 Y.Node.create(styleTag)
             );
@@ -137,25 +151,46 @@ YUI.add('chrome-link-search', function (Y) {
         },
 
         bindUI : function() {
-            Body.on('linksearch|keyup', Y.bind(this._triggerSearchMode, this));
+            Body.on('linksearch|keyup',   Y.bind(this._triggerFilter, this));
+            Body.on('linksearch|keydown', Y.bind(this._triggerFilter, this));
+
             this.field.on('keyup', Y.bind(this._searchModeKeyUpHandler, this));
 
-            this.after('searchModeChange', Y.bind(this._afterSearchModeChange, this));
-            this.after('queryStringChange', Y.bind(this._afterQueryStringChange, this));
+            this.after('searchModeChange',   Y.bind(this._afterSearchModeChange,   this));
+            this.after('queryStringChange',  Y.bind(this._afterQueryStringChange,  this));
             this.after('matchedLinksChange', Y.bind(this._afterMatchedLinksChange, this));
-            this.after('focusIndexChange', Y.bind(this._afterFocusIndexChange, this));
+            this.after('focusIndexChange',   Y.bind(this._afterFocusIndexChange,   this));
         },
 
         syncUI : function() {
             this.set('visible', this.get('searchMode'));
         },
 
-        _triggerSearchMode : function (e) {
-            // Sorry for the double-negative but I wanted to default-deny.
-            if (e.keyCode === keyCodeFor.SINGLE_QUOTE && !isInvalidTriggerElement[e.target.get('tagName')]) {
-                this.set('searchMode', true);
-                this.field.focus();
+        _triggerFilter : function (e) {
+            var triggerSearchMode,
+                isSingleQuote = e.keyCode === keyCodeFor.SINGLE_QUOTE;
+
+            if (!isSingleQuote) {
+                return;
             }
+
+            // Apologies for the double-negative but I wanted default-deny.
+            if (!isInvalidTriggerSource[e.target.get('tagName')]) {
+                triggerSearchMode = isSingleQuote;
+                // Prevent the search field from being initiated with a single quote entry.
+                e.preventDefault();
+            }
+            else {
+                triggerSearchMode = e.metaKey && isSingleQuote;
+            }
+
+            triggerSearchMode && this._triggerSearchMode();
+        },
+
+        // Trigger search mode. Gives search field focus if already in search mode.
+        _triggerSearchMode : function () {
+            this.set('searchMode', true);
+            this.field.focus();
         },
 
         _searchModeKeyUpHandler : function (e) {
@@ -165,14 +200,15 @@ YUI.add('chrome-link-search', function (Y) {
         _searchModeKeyDownHandler : function (e) {
             if (e.keyCode === keyCodeFor.ESC) {
                 this.set('searchMode', false);
+                e.halt();
             }
             else if (e.shiftKey && e.metaKey && e.keyCode === keyCodeFor.G) {
-                e.halt();
                 this._incrementFocusLinkIndex('decrement');
+                e.halt();
             }
             else if (e.metaKey && e.keyCode === keyCodeFor.G) {
-                e.halt();
                 this._incrementFocusLinkIndex();
+                e.halt();
             }
         },
 
