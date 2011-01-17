@@ -1,15 +1,18 @@
 This project is an excuse to play with YUI3 widgets and Chrome extensions. It implements a link searching feature for Chrome that I frequently use in Firefox.
 
+You can install the extension by going here:
+https://chrome.google.com/webstore/detail/chmpncamajgaikmmgmbmecnelhglfbhi
+
 These are the commands:
-' (single quote) : initiate search mode (focuses the search field if already in search mode)
-esc              : terminate search mode
-cmd-g            : focus on a matched link; hit repeatedly to cycle forwards
-shift-cmd-g      : focus on a matched link; hit repeatedly to cycle backwards
+' or cmd-'   : initiate search mode (focuses the search field if already in search mode)
+esc          : terminate search mode
+cmd-g        : focus on a matched link; hit repeatedly to cycle forwards
+shift-cmd-g  : focus on a matched link; hit repeatedly to cycle backwards
 
 Workflow:
-1) Hit the single quote to initiate search mode. The search field appears with focus.
+1) Hit the single quote to initiate search mode. The search field appears with focus. If you're visiting a site that steals your focus (e.g. yahoo.com or google.com) you can still initiate search mode using cmd-'
 2) Begin typing the search query. All matching links will be highlighted if configured to do so.
 3) Navigate through all the matched links by repeatedly hitting <cmd-g>.
 4) Hit <enter> when you're focused on the link you want to follow.
 
-You can exit search mode by hitting <esc> at any point.
+You can exit search mode by hitting <esc> at any point or by simply clicking on the close icon to the right of the search field.
