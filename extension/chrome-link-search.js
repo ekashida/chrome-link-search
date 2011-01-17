@@ -16,39 +16,55 @@ YUI.add('chrome-link-search', function (Y) {
 
         styles = {
             BOUNDING_BOX : {
+                border: '1px solid #CCC',
+                borderBottomLeftRadius: '10px',
+                background: '#DDD',
                 position: 'fixed',
                 top: '0',
                 right: '0',
                 zIndex: '2147483647'
             },
             CONTENT_BOX: {
-                background: '#DDD',
-                padding: '5px 10px',
-                border: '1px solid #CCC',
-                borderBottomLeftRadius: '10px',
+                padding: '5px 7px',
                 display: 'block',
-                float: 'right',
                 width: 'auto',
                 height: 'auto'
             },
             LABEL : {
                 color: '#444',
-                fontSize: '12px'
+                fontSize: '13px'
             },
             FIELD : {
                 fontSize: '12px',
-                marginLeft: '5px',
+                marginLeft: '7px',
                 borderRadius: '5px',
                 color: '#000',
                 border: '1px solid #BBB',
-                padding: '6px 8px'
+                padding: '3px 5px'
             },
-            MASK : {
+            CLOSE : {
+                height: '16px',
+                width: '16px',
+                display: 'inline',
+                float: 'right',
+                position: 'relative',
+                margin: '3px 0 0 5px',
+                borderRadius: '10px'
+            },
+            CLOSE_BOTH : {
+                height: '13px',
+                width: '2px',
+                display: 'block',
                 background: '#000',
-                opacity: '0.25'
             },
-            MATCH : {
-                background: 'yellow'
+            CLOSE_FORWARD : {
+                transform: 'rotate(45deg)',
+                position: 'absolute',
+                top: '1px',
+                right: '7px'
+            },
+            CLOSE_BACK : {
+                transform: 'rotate(90deg)'
             }
         };
 
@@ -63,12 +79,25 @@ YUI.add('chrome-link-search', function (Y) {
     LinkSearch.FIELD_TEMPLATE = '<input id="chrome-linksearch-field" type="text"></input>';
     LinkSearch.MASK_TEMPLATE  = '<div id="chrome-linksearch-mask"></div>';
 
+    LinkSearch.CLOSE_TEMPLATE         = '<span id="linksearch-close"></span>';
+    LinkSearch.CLOSE_FORWARD_TEMPLATE = '<span id="linksearch-forwardslash"></span>';
+    LinkSearch.CLOSE_BACK_TEMPLATE    = '<span id="linksearch-backslash"></span>';
+
+    LinkSearch.CSS = '<style type="text/css">' +
+        '#linksearch-close:hover {background:#777}' +
+        '#linksearch-close:hover span {background:#fff !important;}' +
+    '</style>';
+
     LinkSearch.ATTRS = {
 
         strings: {
             value: {
                 label: 'Quick Find (links only):'
             }
+        },
+
+        matchColor: {
+            value: 'yellow'
         },
 
         searchMode: {
@@ -125,7 +154,11 @@ YUI.add('chrome-link-search', function (Y) {
                 labelText   = this.getString('label'),
 
                 label = Y.Node.create(Y.substitute(LinkSearch.LABEL_TEMPLATE, { LABEL: labelText })),
-                field = Y.Node.create(LinkSearch.FIELD_TEMPLATE);
+                field = Y.Node.create(LinkSearch.FIELD_TEMPLATE),
+
+                close   = Y.Node.create(LinkSearch.CLOSE_TEMPLATE),
+                forward = Y.Node.create(LinkSearch.CLOSE_FORWARD_TEMPLATE),
+                back    = Y.Node.create(LinkSearch.CLOSE_BACK_TEMPLATE);
 
             // Set style attributes.
             boundingBox.setStyles(styles.BOUNDING_BOX);
@@ -139,6 +172,11 @@ YUI.add('chrome-link-search', function (Y) {
                 hiddenRule    = boundingBoxId + hiddenClass + '{display:none;}',
                 matchRule     = '.' + this.getClassName('match') + '{background:yellow;}',
                 styleTag      = '<style>' + hiddenRule + matchRule + '</style>';
+            close.setStyles(styles.CLOSE);
+            forward.setStyles(styles.CLOSE_BOTH);
+            forward.setStyles(styles.CLOSE_FORWARD);
+            back.setStyles(styles.CLOSE_BOTH);
+            back.setStyles(styles.CLOSE_BACK);
 
             Y.one('head').append(
                 Y.Node.create(styleTag)
@@ -147,7 +185,12 @@ YUI.add('chrome-link-search', function (Y) {
             contentBox.appendChild(label);
             contentBox.appendChild(field);
 
+            forward.append(back);
+            close.append(forward);
+            contentBox.append(close);
+
             this.field = field;
+            this.close = close;
         },
 
         bindUI : function() {
@@ -155,6 +198,9 @@ YUI.add('chrome-link-search', function (Y) {
             Body.on('linksearch|keydown', Y.bind(this._triggerFilter, this));
 
             this.field.on('keyup', Y.bind(this._searchModeKeyUpHandler, this));
+            this.close.on('click', Y.bind(function () {
+                this.set('searchMode', false);
+            }, this));
 
             this.after('searchModeChange',   Y.bind(this._afterSearchModeChange,   this));
             this.after('queryStringChange',  Y.bind(this._afterQueryStringChange,  this));
