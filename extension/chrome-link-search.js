@@ -165,13 +165,6 @@ YUI.add('chrome-link-search', function (Y) {
             contentBox.setStyles(styles.CONTENT_BOX);
             label.setStyles(styles.LABEL);
             field.setStyles(styles.FIELD);
-
-            // Define styles for hidden state and matched links.
-            var boundingBoxId = '#' + boundingBox.get('id'),
-                hiddenClass   = '.' + this.getClassName('hidden'),
-                hiddenRule    = boundingBoxId + hiddenClass + '{display:none;}',
-                matchRule     = '.' + this.getClassName('match') + '{background:yellow;}',
-                styleTag      = '<style>' + hiddenRule + matchRule + '</style>';
             close.setStyles(styles.CLOSE);
             forward.setStyles(styles.CLOSE_BOTH);
             forward.setStyles(styles.CLOSE_FORWARD);
@@ -209,7 +202,7 @@ YUI.add('chrome-link-search', function (Y) {
         },
 
         syncUI : function() {
-            this.set('visible', this.get('searchMode'));
+            this.get('boundingBox').remove();
         },
 
         _triggerFilter : function (e) {
@@ -318,6 +311,7 @@ YUI.add('chrome-link-search', function (Y) {
             var searchModeIsActive = e.newVal;
 
             if (searchModeIsActive) {
+                Body.append(this.get('boundingBox'));
                 this.set('visible', true);
                 this.set('allLinks', Y.all('a'));
                 this.field.focus();
@@ -325,6 +319,7 @@ YUI.add('chrome-link-search', function (Y) {
                 Body.on('searchmode|keydown', Y.bind(this._searchModeKeyDownHandler, this));
             }
             else {
+                this.get('boundingBox').remove();
                 this.set('visible', false);
                 this.set('allLinks', null);
                 this.field.set('value', '');
