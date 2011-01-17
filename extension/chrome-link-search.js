@@ -75,9 +75,8 @@ YUI.add('chrome-link-search', function (Y) {
 
     LinkSearch.NAME = 'linkSearch';
 
-    LinkSearch.LABEL_TEMPLATE = '<label for="chrome-link-search-field">{LABEL}</label>';
-    LinkSearch.FIELD_TEMPLATE = '<input id="chrome-linksearch-field" type="text"></input>';
-    LinkSearch.MASK_TEMPLATE  = '<div id="chrome-linksearch-mask"></div>';
+    LinkSearch.LABEL_TEMPLATE = '<label for="linksearch-field">{LABEL}</label>';
+    LinkSearch.FIELD_TEMPLATE = '<input id="linksearch-field" type="text"></input>';
 
     LinkSearch.CLOSE_TEMPLATE         = '<span id="linksearch-close"></span>';
     LinkSearch.CLOSE_FORWARD_TEMPLATE = '<span id="linksearch-forwardslash"></span>';
@@ -374,7 +373,7 @@ YUI.add('chrome-link-search', function (Y) {
 
         _highlighter : function (links, add) {
             for (var i = 0, len = links.length; i < len; i++) {
-                links[i][add ? 'addClass' : 'removeClass']('yui3-linksearch-match');
+                links[i][add ? 'addClass' : 'removeClass']('linksearch-match');
             }
         },
 
