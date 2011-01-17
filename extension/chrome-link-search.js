@@ -83,6 +83,7 @@ YUI.add('chrome-link-search', function (Y) {
     LinkSearch.CLOSE_BACK_TEMPLATE    = '<span id="linksearch-backslash"></span>';
 
     LinkSearch.CSS = '<style type="text/css">' +
+        '.linksearch-match{background:{BACKGROUND_COLOR};}' +
         '#linksearch-close:hover {background:#777}' +
         '#linksearch-close:hover span {background:#fff !important;}' +
     '</style>';
@@ -171,7 +172,11 @@ YUI.add('chrome-link-search', function (Y) {
             back.setStyles(styles.CLOSE_BACK);
 
             Y.one('head').append(
-                Y.Node.create(styleTag)
+                Y.Node.create(
+                    Y.substitute(LinkSearch.CSS, {
+                        BACKGROUND_COLOR: this.get('matchColor')
+                    })
+                )
             );
 
             contentBox.appendChild(label);
